@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>17. mai Bingo 🇳🇴</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap");
+
+      :root {
+        --red: #c0152a;
+        --darkred: #8b0e1e;
+        --blue: #003087;
+        --darkblue: #001a4d;
+        --gold: #d4a017;
+        --cream: #fdf6e3;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Lora", Georgia, serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        background: var(--darkblue);
+      }
+
+      .screen {
+        display: none;
+        min-height: 100vh;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .screen.active {
+        display: flex;
+      }
+
+      /* HOME */
+      #home {
+        background:
+          radial-gradient(
+            ellipse at 20% 80%,
+            rgba(192, 21, 42, 0.45) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse at 80% 20%,
+            rgba(0, 48, 135, 0.5) 0%,
+            transparent 60%
+          ),
+          linear-gradient(160deg, #0a1628 0%, #1a0a10 100%);
+        gap: 28px;
+        text-align: center;
+      }
+
+      .flag-deco {
+        display: flex;
+        height: 6px;
+        width: 200px;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .flag-deco span {
+        flex: 1;
+      }
+      .flag-deco .r {
+        background: var(--red);
+      }
+      .flag-deco .w {
+        background: white;
+        flex: 0.4;
+      }
+      .flag-deco .b {
+        background: var(--blue);
+      }
+
+      .home-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2.8rem, 10vw, 5.5rem);
+        font-weight: 900;
+        color: var(--white);
+        line-height: 1;
+        text-shadow: 3px 4px 0 var(--darkred);
+      }
+      .home-title .bingo-word {
+        display: block;
+        font-size: clamp(3.5rem, 14vw, 7rem);
+        letter-spacing: 6px;
+        color: var(--gold);
+        text-shadow:
+          4px 4px 0 #7a5800,
+          8px 8px 16px rgba(0, 0, 0, 0.5);
+      }
+
+      .home-desc {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        max-width: 320px;
+        line-height: 1.6;
+      }
+
+      .input-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 340px;
+      }
+      .input-block label {
+        color: var(--gold);
+        font-size: 0.75rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+      .input-block input {
+        width: 100%;
+        padding: 15px 20px;
+        font-size: 1.15rem;
+        font-family: "Lora", serif;
+        border: 2px solid rgba(212, 160, 23, 0.5);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.07);
+        color: white;
+        text-align: center;
+        outline: none;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+      }
+      .input-block input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .input-block input:focus {
+        border-color: var(--gold);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .btn {
+        padding: 16px 44px;
+        font-family: "Playfair Display", serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+        letter-spacing: 1px;
+      }
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+      .btn-gold {
+        background: var(--gold);
+        color: var(--darkblue);
+      }
+
+      /* CARD SCREEN */
+      #card-screen {
+        background: var(--cream);
+        background-image:
+          radial-gradient(
+            circle at 5% 95%,
+            rgba(192, 21, 42, 0.08) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 95% 5%,
+            rgba(0, 48, 135, 0.08) 0%,
+            transparent 40%
+          );
+        padding: 16px 12px;
+        justify-content: flex-start;
+        padding-top: 20px;
+        gap: 0;
+      }
+
+      .card-top {
+        text-align: center;
+        margin-bottom: 14px;
+      }
+      .card-top .syttende {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(1.2rem, 4vw, 1.7rem);
+        color: var(--red);
+        font-weight: 900;
+        text-shadow: 1px 1px 0 var(--darkred);
+        line-height: 1;
+      }
+      .card-top .mai-bingo {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2rem, 8vw, 3.2rem);
+        font-weight: 900;
+        color: var(--blue);
+        letter-spacing: 4px;
+        line-height: 1;
+      }
+      .card-top .player-label {
+        font-size: 0.75rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-top: 4px;
+      }
+      .card-top .player-label span {
+        color: var(--darkblue);
+        font-weight: 600;
+      }
+
+      .bingo-header {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+        width: 100%;
+        max-width: 480px;
+        margin-bottom: 4px;
+      }
+      .bingo-letter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Playfair Display", serif;
+        font-weight: 900;
+        font-size: clamp(1.2rem, 4vw, 1.6rem);
+        height: 36px;
+        border-radius: 6px 6px 0 0;
+      }
+      .bingo-letter:nth-child(1) {
+        background: var(--red);
+        color: white;
+      }
+      .bingo-letter:nth-child(2) {
+        background: white;
+        color: var(--red);
+        border: 2px solid var(--red);
+        border-bottom: none;
+      }
+      .bingo-letter:nth-child(3) {
+        background: var(--blue);
+        color: white;
+      }
+      .bingo-letter:nth-child(4) {
+        background: var(--red);
+        color: white;
+      }
+
+      .bingo-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+        width: 100%;
+        max-width: 480px;
+      }
+
+      .bingo-cell {
+        aspect-ratio: 1;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 6px 4px;
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          border-color 0.15s,
+          background 0.2s;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .bingo-cell .cell-emoji {
+        font-size: clamp(1.3rem, 4.5vw, 2rem);
+        line-height: 1;
+        margin-bottom: 2px;
+      }
+      .bingo-cell .cell-text {
+        font-size: clamp(0.48rem, 1.6vw, 0.68rem);
+        color: #333;
+        line-height: 1.25;
+        font-family: "Lora", serif;
+        font-weight: 600;
+      }
+      .bingo-cell:hover:not(.marked) {
+        border-color: var(--red);
+        transform: scale(1.04);
+        z-index: 1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
+
+      .bingo-cell.marked {
+        background: var(--red);
+        border-color: var(--darkred);
+        transform: scale(0.97);
+      }
+      .bingo-cell.marked .cell-emoji {
+        filter: brightness(0) invert(1);
+      }
+      .bingo-cell.marked .cell-text {
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .bingo-cell.marked::after {
+        content: "✓";
+        position: absolute;
+        top: 4px;
+        right: 6px;
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .bingo-cell.winner-cell {
+        background: var(--gold) !important;
+        border-color: #a07800 !important;
+        animation: pulse-gold 0.8s ease-in-out infinite alternate;
+      }
+      .bingo-cell.winner-cell .cell-text {
+        color: var(--darkblue) !important;
+      }
+      .bingo-cell.winner-cell .cell-emoji {
+        filter: none !important;
+      }
+      @keyframes pulse-gold {
+        from {
+          box-shadow: 0 0 0 0 rgba(212, 160, 23, 0.6);
+        }
+        to {
+          box-shadow: 0 0 0 10px rgba(212, 160, 23, 0);
+        }
+      }
+
+      .status-bar {
+        width: 100%;
+        max-width: 480px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: rgba(0, 48, 135, 0.06);
+        border-radius: 6px;
+        border: 1px solid rgba(0, 48, 135, 0.1);
+      }
+      .status-bar .count {
+        font-size: 0.8rem;
+        color: var(--blue);
+        font-weight: 600;
+      }
+      .status-bar .hint {
+        font-size: 0.7rem;
+        color: #888;
+        font-style: italic;
+      }
+
+      .bottom-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .btn-small {
+        padding: 10px 22px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-family: "Lora", serif;
+        font-weight: 600;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .btn-small:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .btn-reset {
+        background: white;
+        color: var(--red);
+        border: 2px solid var(--red);
+      }
+      .btn-new {
+        background: var(--blue);
+        color: white;
+      }
+
+      /* WIN OVERLAY */
+      #win-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      #win-overlay.active {
+        display: flex;
+      }
+
+      .win-box {
+        background: linear-gradient(
+          135deg,
+          var(--gold) 0%,
+          #f0c030 50%,
+          var(--gold) 100%
+        );
+        border-radius: 16px;
+        padding: 40px 36px;
+        text-align: center;
+        max-width: 360px;
+        width: 100%;
+        box-shadow:
+          0 24px 60px rgba(0, 0, 0, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes pop-in {
+        from {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .win-box .win-emoji {
+        font-size: 4rem;
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .win-box h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: var(--darkblue);
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
+        line-height: 1;
+      }
+      .win-box .win-name {
+        font-size: 1.1rem;
+        color: var(--darkblue);
+        margin: 8px 0 20px;
+        font-weight: 600;
+      }
+      .win-box .win-btns {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn-darkblue {
+        background: var(--darkblue);
+        color: var(--gold);
+        padding: 12px 28px;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        transition: transform 0.15s;
+      }
+      .btn-darkblue:hover {
+        transform: translateY(-2px);
+      }
+      .btn-white-outline {
+        background: transparent;
+        color: var(--darkblue);
+        border: 2px solid var(--darkblue);
+        padding: 12px 28px;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: "Lora", serif;
+        font-weight: 600;
+        transition: transform 0.15s;
+      }
+      .btn-white-outline:hover {
+        transform: translateY(-2px);
+      }
+
+      #confetti-canvas {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 99;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HOME SCREEN -->
+    <div id="home" class="screen active">
+      <div class="flag-deco">
+        <span class="r"></span><span class="w"></span><span class="b"></span
+        ><span class="w"></span><span class="r"></span>
+      </div>
+      <div class="home-title">
+        17. mai
+        <span class="bingo-word">BINGO</span>
+      </div>
+      <p class="home-desc">
+        Huk av ruter når noe skjer under frokosten. Første til å få fire på rad
+        vinner! 🎉
+      </p>
+      <div class="input-block">
+        <label>Ditt navn</label>
+        <input
+          type="text"
+          id="player-name"
+          placeholder="Skriv navn her…"
+          maxlength="24"
+          autocomplete="off"
+        />
+      </div>
+      <button class="btn btn-gold" onclick="startGame()">
+        Få mitt kort 🇳🇴
+      </button>
+      <div class="flag-deco">
+        <span class="r"></span><span class="w"></span><span class="b"></span
+        ><span class="w"></span><span class="r"></span>
+      </div>
+    </div>
+
+    <!-- CARD SCREEN -->
+    <div id="card-screen" class="screen">
+      <div class="card-top">
+        <div class="syttende">✦ 17. MAI ✦</div>
+        <div class="mai-bingo">BINGO</div>
+        <div class="player-label">
+          Kortet til <span id="display-name">—</span>
+        </div>
+      </div>
+      <div class="bingo-header">
+        <div class="bingo-letter">B</div>
+        <div class="bingo-letter">I</div>
+        <div class="bingo-letter">N</div>
+        <div class="bingo-letter">G</div>
+      </div>
+      <div class="bingo-grid" id="bingo-grid"></div>
+      <div class="status-bar">
+        <div class="count" id="marked-count">0 / 16 huket av</div>
+        <div class="hint">Trykk for å huke av</div>
+      </div>
+      <div class="bottom-btns">
+        <button class="btn-small btn-reset" onclick="resetCard()">
+          ↺ Nullstill
+        </button>
+        <button class="btn-small btn-new" onclick="goHome()">Nytt kort</button>
+      </div>
+    </div>
+
+    <!-- WIN OVERLAY -->
+    <div id="win-overlay">
+      <div class="win-box">
+        <div class="win-emoji">🏆</div>
+        <h2>BINGO!</h2>
+        <div class="win-name" id="win-name-display"></div>
+        <div class="win-btns">
+          <button class="btn-darkblue" onclick="closeWin()">
+            Fortsett å spille
+          </button>
+          <button class="btn-white-outline" onclick="goHome()">
+            Nytt kort
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script>
+      const ALL_ITEMS = [
+        { emoji: "🥂", text: 'Noen sier\n"Gratulerer\nmed dagen"' },
+        { emoji: "💦", text: "Noen søler\ndrikke" },
+        { emoji: "🤳", text: "Noen tar\nselfie" },
+        { emoji: "👗", text: "Noen nevner\nbunad" },
+        { emoji: "🍓", text: "Noen spiser\njordbær" },
+        { emoji: "🌧️", text: "Noen klager\npå været" },
+        { emoji: "🍾", text: 'Noen sier\n"skål"' },
+        { emoji: "🎶", text: "Noen synger" },
+        { emoji: "📸", text: "Noen tar\nbilde av\nmaten" },
+        { emoji: "⏰", text: "Noen\nkommer for\nsent" },
+        { emoji: "😅", text: 'Noen sier\n"jeg ble\nmett as"' },
+        { emoji: "💋", text: "Noen tar på\nlip balm" },
+        { emoji: "🏙️", text: "Noen snakker\nom byen\netterpå" },
+        { emoji: "🚗", text: 'Noen sier\n"jeg må dra\nsnart"' },
+        { emoji: "🥤", text: "Noen tar en\nrefill av\ndrikke" },
+        { emoji: "💙", text: "Noen sier \nsavn på Elias" },
+      ];
+
+      let playerName = "";
+      let currentCard = [];
+      let markedCells = [];
+      let winDeclared = false;
+
+      function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function showScreen(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+      }
+
+      function startGame() {
+        const input = document.getElementById("player-name");
+        playerName = input.value.trim() || "Anonym";
+        currentCard = shuffle(ALL_ITEMS);
+        markedCells = new Array(16).fill(false);
+        winDeclared = false;
+        document.getElementById("display-name").textContent = playerName;
+        renderGrid();
+        updateStatus();
+        showScreen("card-screen");
+      }
+
+      function goHome() {
+        closeWin();
+        showScreen("home");
+      }
+
+      function renderGrid() {
+        const grid = document.getElementById("bingo-grid");
+        grid.innerHTML = "";
+        currentCard.forEach((item, idx) => {
+          const cell = document.createElement("div");
+          cell.className = "bingo-cell" + (markedCells[idx] ? " marked" : "");
+          cell.dataset.idx = idx;
+          cell.innerHTML =
+            '<span class="cell-emoji">' +
+            item.emoji +
+            "</span>" +
+            '<span class="cell-text">' +
+            item.text.replace(/\n/g, "<br>") +
+            "</span>";
+          cell.addEventListener("click", () => toggleCell(idx));
+          grid.appendChild(cell);
+        });
+      }
+
+      function toggleCell(idx) {
+        markedCells[idx] = !markedCells[idx];
+        const cell = document.querySelector(
+          '.bingo-cell[data-idx="' + idx + '"]',
+        );
+        if (cell) cell.classList.toggle("marked", markedCells[idx]);
+        updateStatus();
+        const line = checkBingo();
+        if (line && !winDeclared) {
+          winDeclared = true;
+          highlightLine(line);
+          setTimeout(() => showWin(), 400);
+        }
+      }
+
+      function checkBingo() {
+        for (let r = 0; r < 4; r++) {
+          const row = [r * 4, r * 4 + 1, r * 4 + 2, r * 4 + 3];
+          if (row.every((i) => markedCells[i])) return row;
+        }
+        for (let c = 0; c < 4; c++) {
+          const col = [c, c + 4, c + 8, c + 12];
+          if (col.every((i) => markedCells[i])) return col;
+        }
+        if ([0, 5, 10, 15].every((i) => markedCells[i])) return [0, 5, 10, 15];
+        if ([3, 6, 9, 12].every((i) => markedCells[i])) return [3, 6, 9, 12];
+        return null;
+      }
+
+      function highlightLine(line) {
+        line.forEach((idx) => {
+          const cell = document.querySelector(
+            '.bingo-cell[data-idx="' + idx + '"]',
+          );
+          if (cell) cell.classList.add("winner-cell");
+        });
+      }
+
+      function updateStatus() {
+        const count = markedCells.filter(Boolean).length;
+        document.getElementById("marked-count").textContent =
+          count + " / 16 huket av";
+      }
+
+      function resetCard() {
+        markedCells = new Array(16).fill(false);
+        winDeclared = false;
+        renderGrid();
+        updateStatus();
+        closeWin();
+      }
+
+      function showWin() {
+        document.getElementById("win-name-display").textContent =
+          playerName + " har fått BINGO! 🇳🇴🎉";
+        document.getElementById("win-overlay").classList.add("active");
+        launchConfetti();
+      }
+
+      function closeWin() {
+        document.getElementById("win-overlay").classList.remove("active");
+        stopConfetti();
+      }
+
+      document
+        .getElementById("player-name")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") startGame();
+        });
+
+      // CONFETTI
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d");
+      let pieces = [];
+      let animId = null;
+      const COLORS = ["#C0152A", "#003087", "#D4A017", "#FFFFFF", "#2ECC71"];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      function launchConfetti() {
+        pieces = [];
+        for (let i = 0; i < 150; i++) {
+          pieces.push({
+            x: Math.random() * canvas.width,
+            y: -10 - Math.random() * 300,
+            w: 8 + Math.random() * 8,
+            h: 4 + Math.random() * 6,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            rot: Math.random() * Math.PI * 2,
+            vx: (Math.random() - 0.5) * 3,
+            vy: 2 + Math.random() * 3,
+            vrot: (Math.random() - 0.5) * 0.15,
+          });
+        }
+        if (animId) cancelAnimationFrame(animId);
+        drawConfetti();
+      }
+
+      function drawConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach((p) => {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          p.vy += 0.04;
+        });
+        pieces = pieces.filter((p) => p.y < canvas.height + 20);
+        if (pieces.length > 0) animId = requestAnimationFrame(drawConfetti);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      function stopConfetti() {
+        if (animId) cancelAnimationFrame(animId);
+        pieces = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    </script>
+  </body>
+</html>
